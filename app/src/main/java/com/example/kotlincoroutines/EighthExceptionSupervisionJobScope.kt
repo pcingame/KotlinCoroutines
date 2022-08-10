@@ -1,5 +1,6 @@
 package com.example.kotlincoroutines
 
+import androidx.core.app.NavUtils
 import kotlinx.coroutines.*
 import java.lang.IndexOutOfBoundsException
 import java.lang.NullPointerException
@@ -114,6 +115,7 @@ fun main() {
     }
 }*/
 
+/*
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
     runBlocking {
@@ -146,5 +148,57 @@ fun main() {
         }
         job.join()
         delay(1000)
+    }
+}*/
+
+//part 3
+/*
+fun main() {
+    runBlocking {
+        val supervisionJob = SupervisorJob()
+        with(CoroutineScope(coroutineContext + supervisionJob)) {
+            val firstChild = launch {
+                println("Print from First Child")
+                throw NullPointerException()
+            }
+
+            val secondChild = launch {
+                firstChild.join()
+                println("Print from second Child. First Child is Active: ${firstChild.isActive}")
+                try {
+                    delay(1000)
+                }finally {
+                    println("Second Child Cancelled")
+                }
+            }
+            firstChild.join()
+            println("Cancelling SuperVisorJob")
+            supervisionJob.cancel()
+            secondChild.isActive
+        }
+    }
+}*/
+
+fun main() {
+    runBlocking {
+      //  val supervisionJob = SupervisorJob()
+        supervisorScope {
+            val firstChild = launch {
+                println("Print from First Child")
+                throw NullPointerException()
+            }
+
+            val secondChild = launch {
+                firstChild.join()
+                println("Print from second Child. First Child is Active: ${firstChild.isActive}")
+                try {
+                    delay(1000)
+                } finally {
+                    println("Second Child Cancelled")
+                }
+            }
+            firstChild.join()
+            secondChild.join()
+        }
     }
 }
